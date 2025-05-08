@@ -1,29 +1,43 @@
 import { Controller, Post, Body, Res } from '@nestjs/common';
-import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
-    const token = this.authService.login(body);
+  async login(
+    @Body() body: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { token, user } = await this.authService.login(body);
 
     res.cookie('token', token, {
-      httpOnly: true, // Безпечніше, щоб JS не мав доступу
-      secure: false, // true для HTTPS
-      sameSite: 'lax', // або 'strict'
-      maxAge: 1000 * 60 * 60 * 24, // 1 день
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
-    return { message: 'Login successful' };
+    return { user: { ...user, password: undefined } };
   }
 
   @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { user, token } = await this.authService.register(dto);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24,
+    });
+    return { user: { ...user, password: undefined } };
   }
 }
