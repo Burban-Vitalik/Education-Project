@@ -71,4 +71,8 @@ export class AuthService {
       user: { ...user, password: undefined },
     };
   }
+
+  logout() {
+    return { message: 'Logged out successfully' };
+  }
 }
