@@ -9,4 +9,8 @@ export class UsersController {
   async getUsers() {
     await this.usersService.getUsers();
   }
+
+  async createUser(data: { email: string; password: string }) {
+    await this.usersService.create(data);
+  }
 }

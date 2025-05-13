@@ -1,5 +1,7 @@
-'use client";';
+"use client";
+import { ApolloProvider } from "@apollo/client";
 import "./globals.css";
+import client from "../lib/auth/apolloClient";
 
 export default function RootLayout({
   children,
@@ -8,7 +10,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ApolloProvider client={client}>{children}</ApolloProvider>
+      </body>
     </html>
   );
 }
